@@ -114,11 +114,14 @@
       padding: 12px 12px 10px;
       background: linear-gradient(to top, rgba(0,0,0,0.65), transparent);
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
       opacity: 0;
       transition: opacity 0.25s;
     }
-    .photo-card:hover .overlay { opacity: 1; }
+    .photo-card:hover .overlay,
+    .photo-card .overlay.has-likes { opacity: 1; }
     .btn-dl {
       background: white;
       border: none;
@@ -291,12 +294,206 @@
     .toast.success { background: #1E6B3A; }
     .toast.error { background: #B91C1C; }
 
+    /* ===== LIKE BUTTON ===== */
+    .btn-like {
+      background: rgba(255,255,255,0.92);
+      border: none;
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--dark);
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-like:hover { background: var(--secondary); }
+    .btn-like:active { transform: scale(0.9); }
+    .btn-like .heart { font-size: 0.95rem; line-height: 1; }
+    .btn-like.liked { background: #ffe5ec; color: var(--accent); }
+    .btn-like.liked .count { color: var(--accent); }
+    .btn-like.zero .count { display: none; }
+
+    /* ===== SLIDESHOW ===== */
+    body.slideshow-mode { overflow: hidden; background: #000; }
+    body.slideshow-mode .header,
+    body.slideshow-mode .nav,
+    body.slideshow-mode .main { display: none !important; }
+    body.slideshow-mode .slideshow { display: block; }
+
+    .slideshow {
+      position: fixed; inset: 0;
+      background: #0a0a0a;
+      z-index: 500;
+      display: none;
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute; inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+    }
+    .slide.active { opacity: 1; }
+    .slide img, .slide video {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .slideshow-info {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 24px;
+      font-size: 0.88rem;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      z-index: 510;
+      backdrop-filter: blur(6px);
+    }
+    .slideshow-info .sep { opacity: 0.4; }
+    .slideshow-controls {
+      position: absolute;
+      top: 18px; right: 18px;
+      display: flex; gap: 10px;
+      z-index: 510;
+    }
+    .slideshow-btn {
+      background: rgba(255,255,255,0.15);
+      border: none; color: white;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+      transition: background 0.2s;
+    }
+    .slideshow-btn:hover { background: rgba(255,255,255,0.3); }
+    .slideshow-empty {
+      position: absolute; inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      gap: 12px;
+      font-size: 1rem;
+      opacity: 0.7;
+    }
+
+    /* ===== RANKING ===== */
+    .ranking-header { text-align: center; margin-bottom: 28px; }
+    .ranking-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+    .ranking-subtitle { color: #aaa; font-size: 0.88rem; }
+
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 32px;
+    }
+    .podium-item {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.25s;
+    }
+    .podium-item:hover { transform: translateY(-4px); }
+    .podium-item .media-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #eee;
+    }
+    .podium-item img, .podium-item video {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .podium-item .info { padding: 10px 8px 14px; }
+    .podium-item .medal { font-size: 1.6rem; line-height: 1; }
+    .podium-item .count {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+    .podium-item.first { transform: translateY(-12px); }
+    .podium-item.first:hover { transform: translateY(-16px); }
+
+    .ranking-rest {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .rank-card {
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s;
+    }
+    .rank-card:hover { transform: translateY(-2px); }
+    .rank-card .pos {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent);
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .rank-card .thumb {
+      width: 56px; height: 56px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+      background: #eee;
+    }
+    .rank-card .meta { flex: 1; min-width: 0; }
+    .rank-card .meta .count {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+    .rank-card .meta .label {
+      font-size: 0.74rem;
+      color: #aaa;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 640px) {
       .gallery-grid { columns: 2 140px; }
       .upload-card { padding: 24px 18px; border-radius: 16px; }
       .header { padding: 36px 16px 24px; }
       .nav-btn { padding: 14px 22px; font-size: 0.85rem; }
+      .podium { gap: 8px; }
+      .ranking-rest { grid-template-columns: 1fr; }
+      .slideshow-info { bottom: 16px; left: 16px; font-size: 0.78rem; padding: 6px 14px; gap: 12px; }
+      .slideshow-btn { width: 40px; height: 40px; font-size: 1rem; }
     }
   </style>
 </head>
@@ -312,7 +509,9 @@
 <!-- ===== NAV ===== -->
 <nav class="nav">
   <button class="nav-btn active" id="nav-gallery" onclick="switchTab('gallery')">📸 Galeria</button>
-  <button class="nav-btn" id="nav-upload" onclick="switchTab('upload')">⬆️ Enviar Foto</button>
+  <button class="nav-btn" id="nav-upload" onclick="switchTab('upload')">⬆️ Enviar</button>
+  <button class="nav-btn" id="nav-slideshow" onclick="switchTab('slideshow')">📺 Telão</button>
+  <button class="nav-btn" id="nav-ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
 </nav>
 
 <!-- ===== MAIN ===== -->
@@ -362,13 +561,54 @@
     </div>
   </div>
 
+  <!-- Ranking -->
+  <div id="section-ranking" class="section">
+    <div class="ranking-header">
+      <h2 class="ranking-title">🏆 Ranking de Fotos</h2>
+      <p class="ranking-subtitle">As fotos mais curtidas da festa</p>
+    </div>
+    <div id="ranking-loading" class="loading">
+      <div class="spinner"></div>
+      <p>Carregando ranking…</p>
+    </div>
+    <div id="ranking-empty" class="empty" style="display:none">
+      <div class="empty-icon">💖</div>
+      <div class="empty-title">Nenhum voto ainda</div>
+      <p class="empty-text">Vote nas suas fotos favoritas para começar o ranking!</p>
+    </div>
+    <div id="ranking-content" style="display:none">
+      <div id="podium" class="podium"></div>
+      <div id="ranking-rest" class="ranking-rest"></div>
+    </div>
+  </div>
+
 </main>
+
+<!-- ===== SLIDESHOW (fora do main para ocupar tela cheia) ===== -->
+<div class="slideshow" id="slideshow">
+  <div class="slide" id="slide-a"></div>
+  <div class="slide" id="slide-b"></div>
+  <div id="slideshow-empty" class="slideshow-empty" style="display:none">
+    <div style="font-size:3rem">📷</div>
+    <p>Nenhuma foto para exibir ainda…</p>
+  </div>
+  <div class="slideshow-info" id="slideshow-info" style="display:none">
+    <span id="ss-counter">0 / 0</span>
+    <span class="sep">•</span>
+    <span><span id="ss-likes">0</span> ❤️</span>
+  </div>
+  <div class="slideshow-controls">
+    <button class="slideshow-btn" id="ss-fullscreen" title="Tela cheia">⛶</button>
+    <button class="slideshow-btn" id="ss-exit" title="Sair">✕</button>
+  </div>
+</div>
 
 <!-- ===== LIGHTBOX ===== -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lb-close">✕</button>
   <div id="lb-media"></div>
   <div class="lightbox-actions">
+    <button id="lb-like"><span class="heart">🤍</span> <span class="count">0</span></button>
     <button id="lb-dl">⬇️ Baixar</button>
     <button id="lb-close2">✕ Fechar</button>
   </div>
@@ -399,15 +639,28 @@
   }
 
   // =========== NAVIGATION ===========
+  const TABS = ['gallery','upload','slideshow','ranking'];
+
   function switchTab(tab) {
-    ['gallery','upload'].forEach(t => {
-      document.getElementById('section-' + t).classList.toggle('active', t === tab);
-      document.getElementById('nav-' + t).classList.toggle('active', t === tab);
+    // Sai do modo telão se estiver entrando em outra aba
+    if (tab !== 'slideshow') stopSlideshow();
+    if (tab !== 'ranking')   stopRankingPolling();
+
+    TABS.forEach(t => {
+      const sec = document.getElementById('section-' + t);
+      const btn = document.getElementById('nav-' + t);
+      if (sec) sec.classList.toggle('active', t === tab);
+      if (btn) btn.classList.toggle('active', t === tab);
     });
-    if (tab === 'gallery') loadGallery();
+
+    if (tab === 'gallery')   loadGallery();
+    if (tab === 'slideshow') startSlideshow();
+    if (tab === 'ranking')   startRanking();
   }
 
   // =========== GALLERY ===========
+  let galleryFiles = []; // cache dos arquivos para reuso no ranking
+
   async function loadGallery() {
 
     const elLoad  = document.getElementById('gallery-loading');
@@ -423,13 +676,17 @@
     elStats.style.display = 'none';
 
     try {
-      const { data, error } = await sb.storage.from(BUCKET_NAME).list('', {
-        limit: 1000,
-        sortBy: { column: 'created_at', order: 'desc' }
-      });
+      const [{ data, error }] = await Promise.all([
+        sb.storage.from(BUCKET_NAME).list('', {
+          limit: 1000,
+          sortBy: { column: 'created_at', order: 'desc' }
+        }),
+        loadLikes()
+      ]);
       if (error) throw error;
 
       const files = (data || []).filter(f => f.name && f.name !== '.emptyFolderPlaceholder');
+      galleryFiles = files;
       elLoad.style.display = 'none';
 
       if (files.length === 0) {
@@ -448,22 +705,29 @@
         const isVideo = /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(file.name);
         const card = document.createElement('div');
         card.className = 'photo-card';
+        card.dataset.file = file.name;
 
-        if (isVideo) {
-          card.innerHTML = `
-            <video src="${url}" muted playsinline preload="metadata" loading="lazy"></video>
-            <div class="overlay">
-              <button class="btn-dl" onclick="event.stopPropagation();dlFile('${url}','${file.name}')">⬇️ Baixar</button>
-            </div>`;
-          card.querySelector('video').addEventListener('click', () => openLightbox(url, true, file.name));
-        } else {
-          card.innerHTML = `
-            <img src="${url}" alt="Foto do evento" loading="lazy">
-            <div class="overlay">
-              <button class="btn-dl" onclick="event.stopPropagation();dlFile('${url}','${file.name}')">⬇️ Baixar</button>
-            </div>`;
-          card.querySelector('img').addEventListener('click', () => openLightbox(url, false, file.name));
-        }
+        const liked = myLikes.has(file.name);
+        const count = likesByPhoto.get(file.name) || 0;
+        const likeBtn = `
+          <button class="btn-like ${liked ? 'liked' : ''} ${count === 0 ? 'zero' : ''}"
+                  onclick="event.stopPropagation();toggleLike('${file.name}')">
+            <span class="heart">${liked ? '❤️' : '🤍'}</span>
+            <span class="count">${count}</span>
+          </button>`;
+
+        const media = isVideo
+          ? `<video src="${url}" muted playsinline preload="metadata" loading="lazy"></video>`
+          : `<img src="${url}" alt="Foto do evento" loading="lazy">`;
+
+        card.innerHTML = `
+          ${media}
+          <div class="overlay ${count > 0 ? 'has-likes' : ''}">
+            ${likeBtn}
+            <button class="btn-dl" onclick="event.stopPropagation();dlFile('${url}','${file.name}')">⬇️ Baixar</button>
+          </div>`;
+        card.querySelector(isVideo ? 'video' : 'img')
+            .addEventListener('click', () => openLightbox(url, isVideo, file.name));
 
         elGrid.appendChild(card);
       }
@@ -471,6 +735,23 @@
     } catch (err) {
       elLoad.innerHTML = `<p style="color:#B91C1C">Erro ao carregar fotos: ${err.message}</p>`;
     }
+  }
+
+  // Atualiza apenas os botões de curtir (sem rebuild do grid) — chamado após toggleLike
+  function refreshGalleryLikeButtons() {
+    document.querySelectorAll('#gallery-grid .photo-card').forEach(card => {
+      const file = card.dataset.file;
+      const btn = card.querySelector('.btn-like');
+      if (!btn) return;
+      const liked = myLikes.has(file);
+      const count = likesByPhoto.get(file) || 0;
+      btn.classList.toggle('liked', liked);
+      btn.classList.toggle('zero', count === 0);
+      btn.querySelector('.heart').textContent = liked ? '❤️' : '🤍';
+      btn.querySelector('.count').textContent = count;
+      const overlay = card.querySelector('.overlay');
+      if (overlay) overlay.classList.toggle('has-likes', count > 0);
+    });
   }
 
   // =========== LIGHTBOX ===========
@@ -483,6 +764,7 @@
     media.innerHTML = isVideo
       ? `<video src="${url}" class="lightbox-media" controls autoplay playsinline></video>`
       : `<img src="${url}" class="lightbox-media" alt="Foto ampliada">`;
+    refreshLightboxLike();
     document.getElementById('lightbox').classList.add('open');
   }
 
@@ -491,9 +773,22 @@
     document.getElementById('lb-media').innerHTML = '';
   }
 
+  function refreshLightboxLike() {
+    const btn = document.getElementById('lb-like');
+    if (!btn || !currentDlName) return;
+    const liked = myLikes.has(currentDlName);
+    const count = likesByPhoto.get(currentDlName) || 0;
+    btn.classList.toggle('liked', liked);
+    btn.querySelector('.heart').textContent = liked ? '❤️' : '🤍';
+    btn.querySelector('.count').textContent = count;
+  }
+
   document.getElementById('lb-close').addEventListener('click', closeLightbox);
   document.getElementById('lb-close2').addEventListener('click', closeLightbox);
   document.getElementById('lb-dl').addEventListener('click', () => dlFile(currentDlUrl, currentDlName));
+  document.getElementById('lb-like').addEventListener('click', () => {
+    if (currentDlName) toggleLike(currentDlName);
+  });
   document.getElementById('lightbox').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeLightbox();
   });
@@ -644,6 +939,358 @@
     t.className = `toast ${type} show`;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
+  }
+
+  // =========== DEVICE ID ===========
+  const DEVICE_ID_KEY = 'rafa_device_id';
+  function getDeviceId() {
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if (!id) {
+      id = (crypto.randomUUID && crypto.randomUUID()) ||
+           (Date.now() + '-' + Math.random().toString(36).slice(2));
+      localStorage.setItem(DEVICE_ID_KEY, id);
+    }
+    return id;
+  }
+  const deviceId = configured ? getDeviceId() : null;
+
+  // =========== LIKES STATE ===========
+  const likesByPhoto = new Map(); // filename -> count
+  const myLikes      = new Set(); // filenames curtidas por este device
+
+  async function loadLikes() {
+    if (!configured) return;
+    try {
+      const { data, error } = await sb
+        .from('photo_likes')
+        .select('photo_filename, device_id');
+      if (error) throw error;
+      likesByPhoto.clear();
+      myLikes.clear();
+      for (const row of data || []) {
+        likesByPhoto.set(row.photo_filename, (likesByPhoto.get(row.photo_filename) || 0) + 1);
+        if (row.device_id === deviceId) myLikes.add(row.photo_filename);
+      }
+    } catch (err) {
+      console.warn('Falha ao carregar curtidas:', err.message);
+    }
+  }
+
+  async function toggleLike(filename) {
+    if (!configured) { showToast('Configure o Supabase primeiro!', 'error'); return; }
+    const wasLiked = myLikes.has(filename);
+
+    // Atualização otimista
+    if (wasLiked) {
+      myLikes.delete(filename);
+      likesByPhoto.set(filename, Math.max(0, (likesByPhoto.get(filename) || 1) - 1));
+    } else {
+      myLikes.add(filename);
+      likesByPhoto.set(filename, (likesByPhoto.get(filename) || 0) + 1);
+    }
+    refreshGalleryLikeButtons();
+    refreshLightboxLike();
+    refreshSlideshowOverlay();
+
+    try {
+      if (wasLiked) {
+        const { error } = await sb.from('photo_likes')
+          .delete()
+          .eq('photo_filename', filename)
+          .eq('device_id', deviceId);
+        if (error) throw error;
+      } else {
+        const { error } = await sb.from('photo_likes')
+          .insert({ photo_filename: filename, device_id: deviceId });
+        // Conflito (já existia) é OK — o estado local fica consistente no próximo loadLikes
+        if (error && error.code !== '23505') throw error;
+      }
+    } catch (err) {
+      // Reverte UI
+      if (wasLiked) {
+        myLikes.add(filename);
+        likesByPhoto.set(filename, (likesByPhoto.get(filename) || 0) + 1);
+      } else {
+        myLikes.delete(filename);
+        likesByPhoto.set(filename, Math.max(0, (likesByPhoto.get(filename) || 1) - 1));
+      }
+      refreshGalleryLikeButtons();
+      refreshLightboxLike();
+      refreshSlideshowOverlay();
+      showToast('Não foi possível registrar seu voto. Tente de novo!', 'error');
+    }
+  }
+
+  // =========== SLIDESHOW ===========
+  const SLIDESHOW_IMG_MS    = 6000;
+  const SLIDESHOW_VIDEO_CAP = 15000;
+  const SLIDESHOW_REFRESH_MS = 30000;
+
+  let slideshowList   = []; // [{name, url, isVideo}]
+  let slideshowIdx    = 0;
+  let slideshowTimer  = null;
+  let slideshowRefresh = null;
+  let activeSlideEl   = 'a';
+
+  async function loadSlideshowList() {
+    const { data, error } = await sb.storage.from(BUCKET_NAME).list('', {
+      limit: 1000,
+      sortBy: { column: 'created_at', order: 'asc' } // ordem cronológica fica mais bonita no telão
+    });
+    if (error) throw error;
+    return (data || [])
+      .filter(f => f.name && f.name !== '.emptyFolderPlaceholder')
+      .map(f => {
+        const { data: u } = sb.storage.from(BUCKET_NAME).getPublicUrl(f.name);
+        return {
+          name: f.name,
+          url: u.publicUrl,
+          isVideo: /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(f.name)
+        };
+      });
+  }
+
+  async function startSlideshow() {
+    if (!configured) return;
+    document.body.classList.add('slideshow-mode');
+    const empty = document.getElementById('slideshow-empty');
+    const info  = document.getElementById('slideshow-info');
+    empty.style.display = 'none';
+    info.style.display  = 'none';
+
+    try {
+      slideshowList = await loadSlideshowList();
+      await loadLikes();
+    } catch (err) {
+      showToast('Erro ao carregar fotos do telão: ' + err.message, 'error');
+      return;
+    }
+
+    if (slideshowList.length === 0) {
+      empty.style.display = 'flex';
+      return;
+    }
+
+    slideshowIdx = 0;
+    showSlide(slideshowIdx);
+    info.style.display = 'flex';
+
+    // Polling: refaz a listagem e curtidas a cada 30s
+    slideshowRefresh = setInterval(refreshSlideshowData, SLIDESHOW_REFRESH_MS);
+  }
+
+  function stopSlideshow() {
+    document.body.classList.remove('slideshow-mode');
+    if (slideshowTimer)   { clearTimeout(slideshowTimer); slideshowTimer = null; }
+    if (slideshowRefresh) { clearInterval(slideshowRefresh); slideshowRefresh = null; }
+    // Para vídeos
+    document.querySelectorAll('#slideshow video').forEach(v => { try { v.pause(); } catch {} });
+    document.getElementById('slide-a').innerHTML = '';
+    document.getElementById('slide-b').innerHTML = '';
+    document.getElementById('slide-a').classList.remove('active');
+    document.getElementById('slide-b').classList.remove('active');
+  }
+
+  async function refreshSlideshowData() {
+    try {
+      const fresh = await loadSlideshowList();
+      // Mantém a posição atual; adiciona novos arquivos no fim
+      const existingNames = new Set(slideshowList.map(f => f.name));
+      const additions = fresh.filter(f => !existingNames.has(f.name));
+      if (additions.length > 0) {
+        slideshowList = slideshowList.concat(additions);
+      }
+      // Remove os que sumiram (raro, mas pode ocorrer se admin apagar)
+      const freshNames = new Set(fresh.map(f => f.name));
+      slideshowList = slideshowList.filter(f => freshNames.has(f.name));
+      if (slideshowList.length === 0) {
+        document.getElementById('slideshow-empty').style.display = 'flex';
+        document.getElementById('slideshow-info').style.display = 'none';
+        return;
+      }
+      await loadLikes();
+      refreshSlideshowOverlay();
+    } catch (err) {
+      console.warn('Falha ao atualizar lista do telão:', err.message);
+    }
+  }
+
+  function showSlide(idx) {
+    if (slideshowList.length === 0) return;
+    const item = slideshowList[idx % slideshowList.length];
+    const nextEl = activeSlideEl === 'a' ? 'b' : 'a';
+    const nextDiv = document.getElementById('slide-' + nextEl);
+    const prevDiv = document.getElementById('slide-' + activeSlideEl);
+
+    nextDiv.innerHTML = item.isVideo
+      ? `<video src="${item.url}" autoplay muted playsinline></video>`
+      : `<img src="${item.url}" alt="">`;
+
+    // Cross-fade
+    nextDiv.classList.add('active');
+    prevDiv.classList.remove('active');
+    activeSlideEl = nextEl;
+
+    refreshSlideshowOverlay();
+
+    // Limpa timer anterior
+    if (slideshowTimer) { clearTimeout(slideshowTimer); slideshowTimer = null; }
+
+    if (item.isVideo) {
+      const video = nextDiv.querySelector('video');
+      let advanced = false;
+      const advance = () => {
+        if (advanced) return;
+        advanced = true;
+        nextSlide();
+      };
+      video.addEventListener('ended', advance, { once: true });
+      // Cap de segurança
+      slideshowTimer = setTimeout(advance, SLIDESHOW_VIDEO_CAP);
+    } else {
+      slideshowTimer = setTimeout(nextSlide, SLIDESHOW_IMG_MS);
+    }
+  }
+
+  function nextSlide() {
+    if (!document.body.classList.contains('slideshow-mode')) return;
+    if (slideshowList.length === 0) return;
+    slideshowIdx = (slideshowIdx + 1) % slideshowList.length;
+    showSlide(slideshowIdx);
+  }
+
+  function refreshSlideshowOverlay() {
+    if (!document.body.classList.contains('slideshow-mode')) return;
+    if (slideshowList.length === 0) return;
+    const item = slideshowList[slideshowIdx % slideshowList.length];
+    if (!item) return;
+    document.getElementById('ss-counter').textContent =
+      `${(slideshowIdx % slideshowList.length) + 1} / ${slideshowList.length}`;
+    document.getElementById('ss-likes').textContent = likesByPhoto.get(item.name) || 0;
+  }
+
+  document.getElementById('ss-fullscreen').addEventListener('click', () => {
+    const el = document.getElementById('slideshow');
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    }
+  });
+  document.getElementById('ss-exit').addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    switchTab('gallery');
+  });
+
+  // =========== RANKING ===========
+  const RANKING_REFRESH_MS = 5000;
+  let rankingTimer = null;
+
+  async function startRanking() {
+    if (!configured) return;
+    await renderRanking(true);
+    rankingTimer = setInterval(() => renderRanking(false), RANKING_REFRESH_MS);
+  }
+
+  function stopRankingPolling() {
+    if (rankingTimer) { clearInterval(rankingTimer); rankingTimer = null; }
+  }
+
+  async function renderRanking(showLoading) {
+    const elLoad    = document.getElementById('ranking-loading');
+    const elEmpty   = document.getElementById('ranking-empty');
+    const elContent = document.getElementById('ranking-content');
+    const podium    = document.getElementById('podium');
+    const rest      = document.getElementById('ranking-rest');
+
+    if (showLoading && galleryFiles.length === 0) {
+      elLoad.style.display = 'block';
+      elEmpty.style.display = 'none';
+      elContent.style.display = 'none';
+    }
+
+    try {
+      // Garante que temos a lista de arquivos (para thumbnails)
+      if (galleryFiles.length === 0) {
+        const { data, error } = await sb.storage.from(BUCKET_NAME).list('', {
+          limit: 1000,
+          sortBy: { column: 'created_at', order: 'desc' }
+        });
+        if (error) throw error;
+        galleryFiles = (data || []).filter(f => f.name && f.name !== '.emptyFolderPlaceholder');
+      }
+      await loadLikes();
+    } catch (err) {
+      elLoad.innerHTML = `<p style="color:#B91C1C">Erro: ${err.message}</p>`;
+      return;
+    }
+
+    elLoad.style.display = 'none';
+
+    const ranked = galleryFiles
+      .map(f => {
+        const { data: u } = sb.storage.from(BUCKET_NAME).getPublicUrl(f.name);
+        return {
+          name: f.name,
+          url: u.publicUrl,
+          isVideo: /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(f.name),
+          count: likesByPhoto.get(f.name) || 0
+        };
+      })
+      .filter(f => f.count > 0)
+      .sort((a, b) => b.count - a.count);
+
+    if (ranked.length === 0) {
+      elEmpty.style.display = 'block';
+      elContent.style.display = 'none';
+      return;
+    }
+
+    elEmpty.style.display = 'none';
+    elContent.style.display = 'block';
+
+    const top3 = ranked.slice(0, 3);
+    const rest3 = ranked.slice(3);
+    const medals = ['🥇', '🥈', '🥉'];
+    const orderForPodium = [1, 0, 2]; // visualmente: 2º, 1º, 3º
+
+    podium.innerHTML = '';
+    orderForPodium.forEach(i => {
+      const f = top3[i];
+      if (!f) return;
+      const div = document.createElement('div');
+      div.className = 'podium-item' + (i === 0 ? ' first' : '');
+      div.innerHTML = `
+        <div class="media-wrap">
+          ${f.isVideo
+            ? `<video src="${f.url}" muted playsinline preload="metadata"></video>`
+            : `<img src="${f.url}" alt="" loading="lazy">`}
+        </div>
+        <div class="info">
+          <div class="medal">${medals[i]}</div>
+          <div class="count">${f.count} ❤️</div>
+        </div>`;
+      div.addEventListener('click', () => openLightbox(f.url, f.isVideo, f.name));
+      podium.appendChild(div);
+    });
+
+    rest.innerHTML = '';
+    rest3.forEach((f, i) => {
+      const div = document.createElement('div');
+      div.className = 'rank-card';
+      const thumb = f.isVideo
+        ? `<video src="${f.url}" class="thumb" muted playsinline preload="metadata"></video>`
+        : `<img src="${f.url}" class="thumb" alt="" loading="lazy">`;
+      div.innerHTML = `
+        <div class="pos">${i + 4}º</div>
+        ${thumb}
+        <div class="meta">
+          <div class="count">${f.count} ❤️</div>
+          <div class="label">curtida${f.count !== 1 ? 's' : ''}</div>
+        </div>`;
+      div.addEventListener('click', () => openLightbox(f.url, f.isVideo, f.name));
+      rest.appendChild(div);
+    });
   }
 
   // =========== INIT ===========
