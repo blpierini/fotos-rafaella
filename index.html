@@ -108,6 +108,19 @@
     }
     .photo-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(44,24,16,0.22); }
     .photo-card img, .photo-card video { width: 100%; display: block; }
+    .photo-card video { aspect-ratio: 16/9; background: #111; object-fit: cover; }
+    .video-badge {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
     .photo-card .overlay {
       position: absolute;
       inset: auto 0 0 0;
@@ -122,6 +135,8 @@
     }
     .photo-card:hover .overlay,
     .photo-card .overlay.has-likes { opacity: 1; }
+    .photo-card .overlay.has-likes .btn-dl { display: none; }
+    .photo-card:hover .overlay .btn-dl { display: flex; }
     .btn-dl {
       background: white;
       border: none;
@@ -717,11 +732,12 @@
           </button>`;
 
         const media = isVideo
-          ? `<video src="${url}" muted playsinline preload="metadata" loading="lazy"></video>`
+          ? `<video src="${url}" muted playsinline preload="metadata"></video>`
           : `<img src="${url}" alt="Foto do evento" loading="lazy">`;
 
         card.innerHTML = `
           ${media}
+          ${isVideo ? '<div class="video-badge">▶</div>' : ''}
           <div class="overlay ${count > 0 ? 'has-likes' : ''}">
             ${likeBtn}
             <button class="btn-dl" onclick="event.stopPropagation();dlFile('${url}','${file.name}')">⬇️ Baixar</button>
