@@ -21,9 +21,29 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: var(--light);
+      background: transparent;
       color: var(--dark);
       min-height: 100vh;
+    }
+
+    /* ===== BACKGROUND ===== */
+    .bg-scene {
+      position: fixed; inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image: url('fundo.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      filter: saturate(1.05) brightness(1);
+      transform: scale(1.02);
+    }
+    .bg-scene::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(244,184,212,.2) 60%, rgba(200,100,150,.4) 100%),
+        linear-gradient(180deg, rgba(255,220,235,.12) 0%, transparent 40%, rgba(120,40,80,.1) 100%);
     }
 
     /* ===== HEADER ===== */
@@ -57,7 +77,9 @@
 
     /* ===== NAV ===== */
     .nav {
-      background: white;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       display: flex;
       justify-content: center;
       box-shadow: 0 2px 12px rgba(0,0,0,0.07);
@@ -204,7 +226,9 @@
 
     /* ===== UPLOAD ===== */
     .upload-card {
-      background: white;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 24px;
       padding: 44px;
       box-shadow: var(--shadow);
@@ -513,6 +537,8 @@
   </style>
 </head>
 <body>
+
+<div class="bg-scene" aria-hidden="true"></div>
 
 <!-- ===== HEADER ===== -->
 <header class="header">
