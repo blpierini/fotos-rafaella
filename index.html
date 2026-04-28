@@ -673,6 +673,33 @@
     if (tab === 'ranking')   startRanking();
   }
 
+  // =========== VIDEO THUMBNAIL ===========
+  function capturePoster(videoEl, url) {
+    const tmp = document.createElement('video');
+    tmp.crossOrigin = 'anonymous';
+    tmp.muted = true;
+    tmp.playsInline = true;
+    tmp.preload = 'metadata';
+    tmp.src = url;
+
+    tmp.addEventListener('loadeddata', () => {
+      tmp.currentTime = Math.min(1, tmp.duration > 0 ? tmp.duration * 0.1 : 1);
+    }, { once: true });
+
+    tmp.addEventListener('seeked', () => {
+      try {
+        const c = document.createElement('canvas');
+        c.width = tmp.videoWidth || 320;
+        c.height = tmp.videoHeight || 180;
+        c.getContext('2d').drawImage(tmp, 0, 0, c.width, c.height);
+        videoEl.poster = c.toDataURL('image/jpeg', 0.75);
+      } catch (e) { /* CORS bloqueou — sem poster */ }
+      tmp.src = '';
+    }, { once: true });
+
+    tmp.addEventListener('error', () => { tmp.src = ''; }, { once: true });
+  }
+
   // =========== GALLERY ===========
   let galleryFiles = []; // cache dos arquivos para reuso no ranking
 
@@ -700,7 +727,13 @@
       ]);
       if (error) throw error;
 
-      const files = (data || []).filter(f => f.name && f.name !== '.emptyFolderPlaceholder');
+      const files = (data || [])
+        .filter(f => f.name && f.name !== '.emptyFolderPlaceholder')
+        .sort((a, b) => {
+          const diff = (likesByPhoto.get(b.name) || 0) - (likesByPhoto.get(a.name) || 0);
+          if (diff !== 0) return diff;
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
       galleryFiles = files;
       elLoad.style.display = 'none';
 
@@ -746,6 +779,7 @@
             .addEventListener('click', () => openLightbox(url, isVideo, file.name));
 
         elGrid.appendChild(card);
+        if (isVideo) capturePoster(card.querySelector('video'), url);
       }
 
     } catch (err) {
