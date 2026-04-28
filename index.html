@@ -130,12 +130,11 @@
       text-align: right;
     }
     .gallery-grid {
-      columns: 3 260px;
-      column-gap: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
     .photo-card {
-      break-inside: avoid;
-      margin-bottom: 12px;
       border-radius: 14px;
       overflow: hidden;
       cursor: pointer;
@@ -143,9 +142,10 @@
       box-shadow: var(--shadow);
       transition: transform 0.3s, box-shadow 0.3s;
       background: #eee;
+      aspect-ratio: 1;
     }
     .photo-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(44,24,16,0.22); }
-    .photo-card img, .photo-card video { width: 100%; display: block; }
+    .photo-card img, .photo-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
     .photo-card video { aspect-ratio: 16/9; background: #111; object-fit: cover; }
     .video-badge {
       position: absolute;
@@ -541,7 +541,7 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 640px) {
-      .gallery-grid { columns: 2 140px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
       .upload-card { padding: 24px 18px; border-radius: 16px; }
       .header { padding: 36px 16px 24px; }
       .nav-btn { padding: 14px 22px; font-size: 0.85rem; }
@@ -1311,11 +1311,13 @@
   });
 
   // =========== RANKING ===========
-  const RANKING_REFRESH_MS = 5000;
+  const RANKING_REFRESH_MS = 60000;
   let rankingTimer = null;
+  let rankingSignature = '';
 
   async function startRanking() {
     if (!configured) return;
+    rankingSignature = '';
     await renderRanking(true);
     rankingTimer = setInterval(() => renderRanking(false), RANKING_REFRESH_MS);
   }
@@ -1371,8 +1373,14 @@
     if (ranked.length === 0) {
       elEmpty.style.display = 'block';
       elContent.style.display = 'none';
+      rankingSignature = '';
       return;
     }
+
+    // Só reconstrói o DOM se os dados mudaram
+    const newSig = ranked.map(f => f.name + ':' + f.count).join('|');
+    if (newSig === rankingSignature) return;
+    rankingSignature = newSig;
 
     elEmpty.style.display = 'none';
     elContent.style.display = 'block';
