@@ -1146,10 +1146,18 @@
   let slideshowRefresh = null;
   let activeSlideEl   = 'a';
 
+  function sortByLikesAndDate(list) {
+    return list.sort((a, b) => {
+      const diff = (likesByPhoto.get(b.name) || 0) - (likesByPhoto.get(a.name) || 0);
+      if (diff !== 0) return diff;
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+  }
+
   async function loadSlideshowList() {
     const { data, error } = await sb.storage.from(BUCKET_NAME).list('', {
       limit: 1000,
-      sortBy: { column: 'created_at', order: 'asc' } // ordem cronológica fica mais bonita no telão
+      sortBy: { column: 'created_at', order: 'desc' }
     });
     if (error) throw error;
     return (data || [])
@@ -1159,7 +1167,8 @@
         return {
           name: f.name,
           url: u.publicUrl,
-          isVideo: /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(f.name)
+          isVideo: /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(f.name),
+          created_at: f.created_at
         };
       });
   }
@@ -1173,8 +1182,8 @@
     info.style.display  = 'none';
 
     try {
-      slideshowList = await loadSlideshowList();
-      await loadLikes();
+      const [list] = await Promise.all([loadSlideshowList(), loadLikes()]);
+      slideshowList = sortByLikesAndDate(list);
     } catch (err) {
       showToast('Erro ao carregar fotos do telão: ' + err.message, 'error');
       return;
@@ -1207,22 +1216,27 @@
 
   async function refreshSlideshowData() {
     try {
-      const fresh = await loadSlideshowList();
-      // Mantém a posição atual; adiciona novos arquivos no fim
-      const existingNames = new Set(slideshowList.map(f => f.name));
-      const additions = fresh.filter(f => !existingNames.has(f.name));
-      if (additions.length > 0) {
-        slideshowList = slideshowList.concat(additions);
-      }
-      // Remove os que sumiram (raro, mas pode ocorrer se admin apagar)
-      const freshNames = new Set(fresh.map(f => f.name));
-      slideshowList = slideshowList.filter(f => freshNames.has(f.name));
+      const [fresh] = await Promise.all([loadSlideshowList(), loadLikes()]);
+
+      const currentName = slideshowList[slideshowIdx % slideshowList.length]?.name;
+
+      // Adiciona novos, remove apagados
+      const existingMap = new Map(slideshowList.map(f => [f.name, f]));
+      const freshNames  = new Set(fresh.map(f => f.name));
+      fresh.forEach(f => { if (!existingMap.has(f.name)) existingMap.set(f.name, f); });
+      slideshowList = [...existingMap.values()].filter(f => freshNames.has(f.name));
+
       if (slideshowList.length === 0) {
         document.getElementById('slideshow-empty').style.display = 'flex';
         document.getElementById('slideshow-info').style.display = 'none';
         return;
       }
-      await loadLikes();
+
+      // Re-ordena por curtidas + data, preservando item atual
+      sortByLikesAndDate(slideshowList);
+      const newIdx = slideshowList.findIndex(f => f.name === currentName);
+      if (newIdx >= 0) slideshowIdx = newIdx;
+
       refreshSlideshowOverlay();
     } catch (err) {
       console.warn('Falha ao atualizar lista do telão:', err.message);
