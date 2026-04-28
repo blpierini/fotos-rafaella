@@ -62,6 +62,14 @@
       background: radial-gradient(ellipse at 60% 40%, rgba(200,149,108,0.35) 0%, transparent 65%);
     }
     .header-emoji { font-size: 2.4rem; margin-bottom: 12px; display: block; position: relative; }
+    .header-crown {
+      width: 220px;
+      max-width: 55vw;
+      display: block;
+      margin: 0 auto 4px;
+      filter: drop-shadow(0 6px 18px rgba(200,100,80,0.45));
+      position: relative;
+    }
     .header-title {
       font-family: 'Playfair Display', serif;
       font-size: clamp(1.8rem, 5vw, 3rem);
@@ -550,7 +558,7 @@
 
 <!-- ===== HEADER ===== -->
 <header class="header">
-  <span class="header-emoji">🎂</span>
+  <img src="coroa.webp" alt="" class="header-crown" draggable="false">
   <h1 class="header-title">Aniversário da Rafaella</h1>
   <p class="header-subtitle">Compartilhe seus momentos especiais do evento</p>
 </header>
@@ -821,9 +829,31 @@
     }
   }
 
-  // Atualiza apenas os botões de curtir (sem rebuild do grid) — chamado após toggleLike
+  // Reordena o grid usando galleryFiles já carregados + likesByPhoto atual — sem chamada extra
   function refreshGalleryLikeButtons() {
-    document.querySelectorAll('#gallery-grid .photo-card').forEach(card => {
+    const elGrid = document.getElementById('gallery-grid');
+    if (!elGrid || elGrid.style.display === 'none' || galleryFiles.length === 0) return;
+
+    // Reordena o array em memória
+    galleryFiles.sort((a, b) => {
+      const diff = (likesByPhoto.get(b.name) || 0) - (likesByPhoto.get(a.name) || 0);
+      if (diff !== 0) return diff;
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    // Coleta os cards existentes por nome de arquivo
+    const cardMap = {};
+    elGrid.querySelectorAll('.photo-card').forEach(card => {
+      cardMap[card.dataset.file] = card;
+    });
+
+    // Reinsere na nova ordem (move nós, sem reconstruir)
+    galleryFiles.forEach(f => {
+      if (cardMap[f.name]) elGrid.appendChild(cardMap[f.name]);
+    });
+
+    // Atualiza botões de curtir
+    elGrid.querySelectorAll('.photo-card').forEach(card => {
       const file = card.dataset.file;
       const btn = card.querySelector('.btn-like');
       if (!btn) return;
