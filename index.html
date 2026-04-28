@@ -62,6 +62,14 @@
       background: radial-gradient(ellipse at 60% 40%, rgba(200,149,108,0.35) 0%, transparent 65%);
     }
     .header-emoji { font-size: 2.4rem; margin-bottom: 12px; display: block; position: relative; }
+    .header-crown {
+      width: 220px;
+      max-width: 55vw;
+      display: block;
+      margin: 0 auto 4px;
+      filter: drop-shadow(0 6px 18px rgba(200,100,80,0.45));
+      position: relative;
+    }
     .header-title {
       font-family: 'Playfair Display', serif;
       font-size: clamp(1.8rem, 5vw, 3rem);
@@ -102,7 +110,15 @@
     .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* ===== MAIN ===== */
-    .main { max-width: 1200px; margin: 0 auto; padding: 32px 16px 80px; }
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 16px 80px;
+      background: rgba(255, 249, 245, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      min-height: calc(100vh - 160px);
+    }
     .section { display: none; }
     .section.active { display: block; }
 
@@ -542,7 +558,7 @@
 
 <!-- ===== HEADER ===== -->
 <header class="header">
-  <span class="header-emoji">🎂</span>
+  <img src="coroa.webp" alt="" class="header-crown" draggable="false">
   <h1 class="header-title">Aniversário da Rafaella</h1>
   <p class="header-subtitle">Compartilhe seus momentos especiais do evento</p>
 </header>
@@ -813,9 +829,31 @@
     }
   }
 
-  // Atualiza apenas os botões de curtir (sem rebuild do grid) — chamado após toggleLike
+  // Reordena o grid usando galleryFiles já carregados + likesByPhoto atual — sem chamada extra
   function refreshGalleryLikeButtons() {
-    document.querySelectorAll('#gallery-grid .photo-card').forEach(card => {
+    const elGrid = document.getElementById('gallery-grid');
+    if (!elGrid || elGrid.style.display === 'none' || galleryFiles.length === 0) return;
+
+    // Reordena o array em memória
+    galleryFiles.sort((a, b) => {
+      const diff = (likesByPhoto.get(b.name) || 0) - (likesByPhoto.get(a.name) || 0);
+      if (diff !== 0) return diff;
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    // Coleta os cards existentes por nome de arquivo
+    const cardMap = {};
+    elGrid.querySelectorAll('.photo-card').forEach(card => {
+      cardMap[card.dataset.file] = card;
+    });
+
+    // Reinsere na nova ordem (move nós, sem reconstruir)
+    galleryFiles.forEach(f => {
+      if (cardMap[f.name]) elGrid.appendChild(cardMap[f.name]);
+    });
+
+    // Atualiza botões de curtir
+    elGrid.querySelectorAll('.photo-card').forEach(card => {
       const file = card.dataset.file;
       const btn = card.querySelector('.btn-like');
       if (!btn) return;
@@ -1108,10 +1146,18 @@
   let slideshowRefresh = null;
   let activeSlideEl   = 'a';
 
+  function sortByLikesAndDate(list) {
+    return list.sort((a, b) => {
+      const diff = (likesByPhoto.get(b.name) || 0) - (likesByPhoto.get(a.name) || 0);
+      if (diff !== 0) return diff;
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+  }
+
   async function loadSlideshowList() {
     const { data, error } = await sb.storage.from(BUCKET_NAME).list('', {
       limit: 1000,
-      sortBy: { column: 'created_at', order: 'asc' } // ordem cronológica fica mais bonita no telão
+      sortBy: { column: 'created_at', order: 'desc' }
     });
     if (error) throw error;
     return (data || [])
@@ -1121,7 +1167,8 @@
         return {
           name: f.name,
           url: u.publicUrl,
-          isVideo: /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(f.name)
+          isVideo: /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(f.name),
+          created_at: f.created_at
         };
       });
   }
@@ -1135,8 +1182,8 @@
     info.style.display  = 'none';
 
     try {
-      slideshowList = await loadSlideshowList();
-      await loadLikes();
+      const [list] = await Promise.all([loadSlideshowList(), loadLikes()]);
+      slideshowList = sortByLikesAndDate(list);
     } catch (err) {
       showToast('Erro ao carregar fotos do telão: ' + err.message, 'error');
       return;
@@ -1169,22 +1216,27 @@
 
   async function refreshSlideshowData() {
     try {
-      const fresh = await loadSlideshowList();
-      // Mantém a posição atual; adiciona novos arquivos no fim
-      const existingNames = new Set(slideshowList.map(f => f.name));
-      const additions = fresh.filter(f => !existingNames.has(f.name));
-      if (additions.length > 0) {
-        slideshowList = slideshowList.concat(additions);
-      }
-      // Remove os que sumiram (raro, mas pode ocorrer se admin apagar)
-      const freshNames = new Set(fresh.map(f => f.name));
-      slideshowList = slideshowList.filter(f => freshNames.has(f.name));
+      const [fresh] = await Promise.all([loadSlideshowList(), loadLikes()]);
+
+      const currentName = slideshowList[slideshowIdx % slideshowList.length]?.name;
+
+      // Adiciona novos, remove apagados
+      const existingMap = new Map(slideshowList.map(f => [f.name, f]));
+      const freshNames  = new Set(fresh.map(f => f.name));
+      fresh.forEach(f => { if (!existingMap.has(f.name)) existingMap.set(f.name, f); });
+      slideshowList = [...existingMap.values()].filter(f => freshNames.has(f.name));
+
       if (slideshowList.length === 0) {
         document.getElementById('slideshow-empty').style.display = 'flex';
         document.getElementById('slideshow-info').style.display = 'none';
         return;
       }
-      await loadLikes();
+
+      // Re-ordena por curtidas + data, preservando item atual
+      sortByLikesAndDate(slideshowList);
+      const newIdx = slideshowList.findIndex(f => f.name === currentName);
+      if (newIdx >= 0) slideshowIdx = newIdx;
+
       refreshSlideshowOverlay();
     } catch (err) {
       console.warn('Falha ao atualizar lista do telão:', err.message);
