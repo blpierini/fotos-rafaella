@@ -727,7 +727,13 @@
       ]);
       if (error) throw error;
 
-      const files = (data || []).filter(f => f.name && f.name !== '.emptyFolderPlaceholder');
+      const files = (data || [])
+        .filter(f => f.name && f.name !== '.emptyFolderPlaceholder')
+        .sort((a, b) => {
+          const diff = (likesByPhoto.get(b.name) || 0) - (likesByPhoto.get(a.name) || 0);
+          if (diff !== 0) return diff;
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
       galleryFiles = files;
       elLoad.style.display = 'none';
 
