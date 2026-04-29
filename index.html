@@ -787,7 +787,7 @@
       elStats.textContent = `${files.length} foto${files.length !== 1 ? 's' : ''} no álbum`;
       elStats.style.display = 'block';
       elGrid.innerHTML = '';
-      elGrid.style.display = 'block';
+      elGrid.style.display = 'grid';
 
       for (const file of files) {
         const { data: u } = sb.storage.from(BUCKET_NAME).getPublicUrl(file.name);
